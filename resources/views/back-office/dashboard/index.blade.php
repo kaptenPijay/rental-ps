@@ -1,28 +1,12 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <title>Laravel</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
-
-        @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    </head>
-    <body>
-        <h3 class="text-center mt-5">Silahkan Memesan Dengan Memasukan Data Diri</h3>
-        <div class="container vh-100 d-flex justify-content-center align-items-center w-100">
-            <form class="w-50">
+@extends('back-office.layouts.index')
+@section('content')
+<h3 class="text-center">Silahkan Memesan Dengan Memasukan Data Diri</h3>
+        <div class="container d-flex justify-content-center align-items-center">
+            <form class="w-50" id="payment-form" action="{{ route('payment.createTransaction') }}" method="POST">
+                @csrf
                 <div class="form-group">
                     <label for="waktuPemesanan" class="mb-1">Waktu Pemesanan</label>
                     <input type="date" name="tanggal_pemesanan" class="form-control" id="waktuPemesanan" aria-describedby="emailHelp" placeholder="Enter email">
-                </div>
-                <div class="form-group my-2">
-                    <label for="name" class="mb-1">Nama</label>
-                    <input type="text" name="name" class="form-control" placeholder="Nama">
                 </div>
                 <div class="form-group my-2">
                     <label for="alamat" class="mb-1">Alamat</label>
@@ -45,10 +29,16 @@
                     <input type="text" name="total" class="form-control" placeholder="0" id="total" readonly>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Submit</button>
+                <input type="hidden" name="midtrans_token" id="midtrans_token">
+
+                <button type="button" id="pay-button" class="btn btn-primary w-100">Bayar Sekarang</button>
             </form>
         </div>
-
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const pilihan = document.getElementById("pilihan");
@@ -74,7 +64,45 @@
                 }
             });
         </script>
+        <script>
+            $(document).ready(function () {
+                $('#pay-button').click(function () {
+                    let formData = {
+                        _token: '{{ csrf_token() }}',
+                        tanggal_pemesanan: $('#waktuPemesanan').val(),
+                        alamat: $('textarea[name="alamat"]').val(),
+                        pilihan: $('#pilihan').val(),
+                        jumlah: $('#jumlah').val(),
+                        total: $('#total').val(),
+                    };
+                    $.ajax({
+                        url: '/back-office/payment',
+                        type: 'POST',
+                        data: formData,
+                        success: function (response) {
+                            if (response.data) {
+                                window.snap.pay(response.data, {
+                                    onSuccess: function (result) {
+                                        window.location.href = "/back-office/dashboard";
+                                    },
+                                    onPending: function (result) {
+                                        alert('Menunggu pembayaran...');
+                                    },
+                                    onError: function (result) {
+                                        alert('Pembayaran gagal');
+                                    }
+                                });
+                            } else {
+                                alert('Gagal mendapatkan token pembayaran');
+                            }
+                        },
+                        error: function () {
+                            alert('Terjadi kesalahan saat mengambil token pembayaran.');
+                        }
+                    });
+                });
+            });
+            </script>
 
-    </body>
 
-</html>
+@endsection
