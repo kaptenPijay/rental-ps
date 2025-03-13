@@ -16,7 +16,6 @@ return new class extends Migration
             $table->date("tanggal_pemesanan");
             $table->longText('alamat');
             $table->enum('pilihan', ['ps-4', 'ps-5']);
-            $table->string('nama');
             $table->integer('jumlah');
             $table->bigInteger('total');
             $table->timestamps();
