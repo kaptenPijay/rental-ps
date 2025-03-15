@@ -47,10 +47,7 @@
     </div>
   </div>
 
-  <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
-  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
-  <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <script>
     $(document).ready(function(){

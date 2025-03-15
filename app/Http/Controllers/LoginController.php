@@ -36,6 +36,6 @@ class LoginController extends Controller
 
         $request->session()->regenerateToken();
         flash('Berhasil Logout');
-        return redirect('/login');
+        return redirect('/');
     }
 }
